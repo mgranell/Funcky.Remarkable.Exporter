@@ -43,6 +43,7 @@ namespace Funcky.Remarkable.Exporter.Model
         [DataMember(Name = "evernoteSourceEmail")]
         public string EvernoteSourceEmail { get; set; }
 
+
         [DataMember(Name = "localPath")]
         public string LocalPath { get; set; }
 

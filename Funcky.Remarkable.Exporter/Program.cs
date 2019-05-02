@@ -21,13 +21,13 @@ namespace Funcky.Remarkable.Exporter
     {
         public static async Task Main()
         {
-            //await (new SynchronizeNotes()).Execute();
+            await SynchronizeNotes.Execute();
 
-            //(new ExtractNotes()).Execute();
+            ExtractNotes.Execute();
 
-            (new DrawNotes()).Execute();
+            DrawNotes.Execute(false);
 
-            //(new SaveToEvernote()).Execute();
+            SaveToEvernote.Execute();
 
             LogManager.Shutdown();
         }

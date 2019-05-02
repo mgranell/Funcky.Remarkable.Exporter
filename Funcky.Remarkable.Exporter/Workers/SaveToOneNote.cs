@@ -1,16 +1,11 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="SaveToEvernote.cs" company="Prism">
-//  Copyright (c) Prism. All rights reserved.
-//  </copyright>
-// -----------------------------------------------------------------------
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Funcky.Remarkable.Exporter.Workers
 {
-    using System;
     using System.IO;
-    using System.Linq;
-    using System.Net.Mail;
-    using System.Threading;
+    using System.Threading.Tasks;
 
     using Funcky.Remarkable.Exporter.Model;
 
@@ -18,11 +13,11 @@ namespace Funcky.Remarkable.Exporter.Workers
 
     using NLog;
 
-    public class SaveToEvernote
+    public static class SaveToOneNote
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        public static void Execute()
+        public static async Task Execute()
         {
             Logger.Info("Start Exporting to Evernote");
 
@@ -40,59 +35,36 @@ namespace Funcky.Remarkable.Exporter.Workers
                 Logger.Info($"Processing device {device.Name}");
 
                 // Check if Evernote is enabled
-                if (!IsEnabled(device))
+                /*if (!IsEnabled(device))
                 {
                     Logger.Info($"Skipping step for device {device.Name} because it's not enabled");
                     continue;
-                }
+                }*/
 
                 // Check if smtp is present
-                if (config.Smtp == null)
+                /*if (config.Smtp == null)
                 {
                     Logger.Error("Cannot continue with this processor because no smtp info are configured");
                     continue;
-                }
+                }*/
 
                 // Build mail and process send, with a delay    
                 var baseDirectory = new DirectoryInfo(device.LocalPath);
 
                 foreach (var file in baseDirectory.GetFiles("content.json", SearchOption.AllDirectories))
                 {
-                    var evernoteflag = file.FullName.Replace(".json", ".evernote");
+                    var onenoteflag = file.FullName.Replace(".json", ".onenote");
 
-                    if (File.Exists(evernoteflag))
+                    if (File.Exists(onenoteflag))
                     {
                         continue;
                     }
 
                     var content = JObject.Parse(File.ReadAllText(file.FullName));
 
-                    var mail = new MailMessage(device.EvernoteSourceEmail, device.EvernoteDestinationEmail);
-                    mail.Subject = content["VissibleName"] + " @" + device.EvernoteNotebook;
-                    mail.Body = $"Note synchronisée depuis Remarkable le {DateTime.Now:dd/MM/yyyy HH:mm:ss}";
 
-                    var renderedDirectory = Path.Combine(file.DirectoryName ?? throw new ArgumentNullException(nameof(file.DirectoryName)), "content", "png");
-
-                    if (Directory.Exists(renderedDirectory))
-                    {
-                        foreach (var page in Directory.GetFiles(renderedDirectory))
-                        {
-                            var attachement = new Attachment(page);
-                            mail.Attachments.Add(attachement);
-                        }
-                    }
-
-                    Logger.Info($"Sending mail : {mail.Subject}");
-
-                    config.Smtp.GetSmtpClient().Send(mail);
-
-                    File.WriteAllText(evernoteflag, DateTime.Now.ToLongDateString());
-
-                    Thread.Sleep(config.Smtp.Delay * 1000);
                 }
             }
-
-            Logger.Info("End Exporting to Evernote");
         }
 
         private static bool IsEnabled(DeviceRegistration device)
@@ -106,5 +78,6 @@ namespace Funcky.Remarkable.Exporter.Workers
                    && !string.IsNullOrWhiteSpace(device.EvernoteNotebook)
                    && !string.IsNullOrWhiteSpace(device.EvernoteSourceEmail);
         }
+
     }
 }

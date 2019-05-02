@@ -8,6 +8,7 @@ namespace Funcky.Remarkable.Exporter.Workers
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
 
@@ -20,7 +21,7 @@ namespace Funcky.Remarkable.Exporter.Workers
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        public void Execute()
+        public static void Execute(bool force)
         {
             Logger.Info("Start Exporting to PNG");
 
@@ -49,7 +50,7 @@ namespace Funcky.Remarkable.Exporter.Workers
                                                 .Select(f => f.FullName)
                                                 .ToArray(),
                                         TemplateFile = d.First().Directory.FullName + ".pagedata",
-                                        RenderDir = d.First().Directory.FullName + ".png"
+                                        RenderDir = d.First().Directory.FullName
                                     };
 
 
@@ -58,15 +59,17 @@ namespace Funcky.Remarkable.Exporter.Workers
                                     {
                                         PageSources = new[] { file.FullName },
                                         TemplateFile = file.FullName.Replace(".lines", ".pagedata"),
-                                        RenderDir = Path.Combine(file.DirectoryName, ".png")
+                                        RenderDir = file.Directory.FullName
                                     };
 
                 foreach (var source in v2.Concat(v3))
                 {
-                    /*if (Directory.Exists(source.RenderDir))
+                    if (Directory.Exists(source.RenderDir + ".png")
+                        && Directory.Exists(source.RenderDir + ".inkml")
+                        && !force)
                     {
                         continue;
-                    }*/
+                    }
 
                     var templates = new List<string>();
                     if (File.Exists(source.TemplateFile))
@@ -74,27 +77,40 @@ namespace Funcky.Remarkable.Exporter.Workers
                         templates.AddRange(File.ReadAllLines(source.TemplateFile));
                     }
 
-                    Directory.CreateDirectory(source.RenderDir);
+                    Directory.CreateDirectory(source.RenderDir + ".png");
+                    Directory.CreateDirectory(source.RenderDir + ".inkml");
 
-                    var templateIndex = 0;
-                    var pageNumber = 0;
+                    var pageOffset = 0;
                     foreach (var file in source.PageSources)
                     {
                         var parser = new LinesParserMultiVersion(File.ReadAllBytes(file), file);
                         var pages = parser.Parse();
 
-                        var drawer = new LinesDrawer(pages, templates, templateIndex);
+                        var drawer = new LinesDrawer(pages, templates, pageOffset);
                         var images = drawer.Draw();
 
-                        foreach (var imageBinary in images)
+                        for (var i = 0; i < images.Count; i++)
                         {
-                            pageNumber++;
-
-                            var outputFile = Path.Combine(source.RenderDir, $"{pageNumber:000}.png");
+                            var imageBinary = images[i];
+                            var outputFile = Path.Combine(source.RenderDir + ".png", $"{pageOffset + i:000}.png");
                             File.WriteAllBytes(outputFile, imageBinary);
                         }
 
-                        templateIndex += pages.Count;
+                        var inkMLGenerator = new InkMLGenerator(pages, templates, pageOffset);
+                        var inkMLPages = inkMLGenerator.GenerateInkML();
+
+                        for (int i = 0; i < inkMLPages.Count; i++)
+                        {
+                            var inkML = inkMLPages[i];
+
+                            var xmlFile = Path.Combine(source.RenderDir + ".inkml", $"{pageOffset + i:000}.xml");
+                            using (var fs = File.Create(xmlFile))
+                            {
+                                inkML.Save(fs);
+                            }
+                        }
+
+                        pageOffset += pages.Count;
                     }
                 }
             }

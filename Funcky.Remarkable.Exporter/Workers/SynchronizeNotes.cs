@@ -17,7 +17,7 @@ namespace Funcky.Remarkable.Exporter.Workers
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         
-        public async Task Execute()
+        public static async Task Execute()
         {
             Logger.Info("Start Synchronization");
 

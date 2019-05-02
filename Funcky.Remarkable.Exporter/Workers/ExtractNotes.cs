@@ -19,7 +19,7 @@ namespace Funcky.Remarkable.Exporter.Workers
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        public void Execute()
+        public static void Execute()
         {
             Logger.Info("Start Extracting the zip files");
 

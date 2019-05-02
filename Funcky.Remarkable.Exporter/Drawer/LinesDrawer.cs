@@ -86,7 +86,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
                                 if (currentSegment < stroke.Segments.Count - 1)
                                 {
-                                    this.DrawSegment(stroke.Segments[currentSegment], stroke.Segments[currentSegment + 1], canvas);
+                                    this.DrawSegment(stroke, stroke.Segments[currentSegment], stroke.Segments[currentSegment + 1], canvas);
                                 }
                             }
                         }
@@ -108,9 +108,9 @@ namespace Funcky.Remarkable.Exporter.Drawer
             return images;
         }
 
-        private void DrawSegment(Segment start, Segment end, SKCanvas canvas)
+        private void DrawSegment(Stroke stroke, Segment start, Segment end, SKCanvas canvas)
         {
-            var paint = this.GetPaint(start);
+            var paint = this.GetPaint(stroke, start);
             if (paint == null)
             {
                 canvas.DrawRect(0, 0, CanvanWidth, CanvasHeight, new SKPaint { Color = new SKColor(255, 255, 255) });
@@ -120,7 +120,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
             canvas.DrawLine(start.HorizontalPosition, start.VerticalPosition, end.HorizontalPosition, end.VerticalPosition, paint);
         }
 
-        private SKPaint GetPaint(Segment segment)
+        private SKPaint GetPaint(Stroke stroke, Segment segment)
         {
             if (segment == null)
             {
@@ -129,8 +129,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
             
             // Get the base color
             var color = new SKColor(0, 0, 0);
-
-            switch (segment.Stroke?.PenColor)
+            switch (stroke.PenColor)
             {
                 case PenColors.Black:
                     color = new SKColor(0, 0, 0);
@@ -143,11 +142,11 @@ namespace Funcky.Remarkable.Exporter.Drawer
                     break;
             }
 
-            var width = segment.Stroke?.PenWidth ?? 1;
+            var width = stroke.PenWidth;
             var opacity = 1f;
 
             // Manage the "simple" pen type
-            switch (segment.Stroke?.PenType)
+            switch (stroke.PenType)
             {
                 case PenTypes.PenBallpoint:
                 case PenTypes.PenFineLiner:
@@ -175,7 +174,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
             }
             
             // Manage the pressure / tilt sensitive pens
-            switch (segment.Stroke?.PenType)
+            switch (stroke.PenType)
             {
                     case PenTypes.Brush:
                         width = (5 * segment.Tilt) * (6 * width - 10) * (1 + 2 * segment.Pressure * segment.Pressure * segment.Pressure);

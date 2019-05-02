@@ -17,8 +17,6 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
         public float Speed { get; set; }
 
-        public Stroke Stroke { get; set; }
-
         public float Tilt { get; set; }
 
         public float VerticalPosition { get; set; }

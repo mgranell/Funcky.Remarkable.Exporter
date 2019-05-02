@@ -76,8 +76,6 @@ namespace Funcky.Remarkable.Exporter.Drawer
                             Logger.Debug($"Current Segment : {currentSegment}");
 
                             var segment = new Segment();
-                            segment.Stroke = stroke;
-
                             segment.HorizontalPosition = this.GetFloat(workingData);
                             segment.VerticalPosition = this.GetFloat(workingData);
                             segment.Tilt = this.GetFloat(workingData);
