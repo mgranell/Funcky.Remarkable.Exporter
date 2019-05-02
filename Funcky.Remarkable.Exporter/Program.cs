@@ -7,10 +7,13 @@
 namespace Funcky.Remarkable.Exporter
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
 
     using Funcky.Remarkable.Exporter.Workers;
+
+    using Microsoft.Extensions.Configuration;
 
     using NLog;
 
@@ -18,13 +21,13 @@ namespace Funcky.Remarkable.Exporter
     {
         public static async Task Main()
         {
-            await SynchronizeNotes.Execute();
+            //await (new SynchronizeNotes()).Execute();
 
-            ExtractNotes.Execute();
+            //(new ExtractNotes()).Execute();
 
-            DrawNotes.Execute();
+            (new DrawNotes()).Execute();
 
-            SaveToEvernote.Execute();
+            //(new SaveToEvernote()).Execute();
 
             LogManager.Shutdown();
         }

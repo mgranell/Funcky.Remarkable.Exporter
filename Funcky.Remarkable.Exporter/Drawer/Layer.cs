@@ -12,6 +12,6 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
     public class Layer
     {
-        public List<Stroke> Strokes { get; } = new List<Stroke>();
+        public List<Stroke> Strokes { get; set; } = new List<Stroke>();
     }
 }

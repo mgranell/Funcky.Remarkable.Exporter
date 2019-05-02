@@ -16,11 +16,11 @@ namespace Funcky.Remarkable.Exporter.Workers
 
     using NLog;
 
-    public static class DrawNotes
+    public class DrawNotes
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        public static void Execute()
+        public void Execute()
         {
             Logger.Info("Start Exporting to PNG");
 
@@ -39,35 +39,62 @@ namespace Funcky.Remarkable.Exporter.Workers
                 
                 var baseDirectory = new DirectoryInfo(device.LocalPath);
 
-                foreach (var file in baseDirectory.GetFiles("*.lines", SearchOption.AllDirectories))
-                {
-                    var renderedDirectory = Path.Combine(file.DirectoryName ?? throw new ArgumentNullException(nameof(file.DirectoryName)), "png");
+                var v3 = from file in baseDirectory.GetFiles("*.rm", SearchOption.AllDirectories)
+                         group file by file.Directory.FullName
+                         into d
+                         select new
+                                    {
+                                        PageSources =
+                                            d.OrderBy(f => int.Parse(Path.GetFileNameWithoutExtension(f.Name)))
+                                                .Select(f => f.FullName)
+                                                .ToArray(),
+                                        TemplateFile = d.First().Directory.FullName + ".pagedata",
+                                        RenderDir = d.First().Directory.FullName + ".png"
+                                    };
 
-                    if (Directory.Exists(renderedDirectory))
+
+                var v2 = from file in baseDirectory.GetFiles("*.lines", SearchOption.AllDirectories)
+                         select new
+                                    {
+                                        PageSources = new[] { file.FullName },
+                                        TemplateFile = file.FullName.Replace(".lines", ".pagedata"),
+                                        RenderDir = Path.Combine(file.DirectoryName, ".png")
+                                    };
+
+                foreach (var source in v2.Concat(v3))
+                {
+                    /*if (Directory.Exists(source.RenderDir))
                     {
                         continue;
-                    }
+                    }*/
 
-                    var templateFileName = file.FullName.Replace(".lines", ".pagedata");
                     var templates = new List<string>();
-
-                    if (File.Exists(templateFileName))
+                    if (File.Exists(source.TemplateFile))
                     {
-                        templates.AddRange(File.ReadAllLines(templateFileName));
+                        templates.AddRange(File.ReadAllLines(source.TemplateFile));
                     }
 
-                    var parser = new LinesParser(File.ReadAllBytes(file.FullName), file.Name);
-                    var pages = parser.Parse();
+                    Directory.CreateDirectory(source.RenderDir);
 
-                    var drawer = new LinesDrawer(pages, templates);
-                    var images = drawer.Draw();
-
-                    Directory.CreateDirectory(renderedDirectory);
-
-                    for (var image = 0; image < images.Count; image++)
+                    var templateIndex = 0;
+                    var pageNumber = 0;
+                    foreach (var file in source.PageSources)
                     {
-                        var outputFile = Path.Combine(renderedDirectory, $"{image + 1:000}.png");
-                        File.WriteAllBytes(outputFile, images[image]);
+                        var parser = new LinesParserMultiVersion(File.ReadAllBytes(file), file);
+                        var pages = parser.Parse();
+
+                        var drawer = new LinesDrawer(pages, templates, templateIndex);
+                        var images = drawer.Draw();
+
+                        foreach (var imageBinary in images)
+                        {
+                            pageNumber++;
+
+                            var outputFile = Path.Combine(source.RenderDir, $"{pageNumber:000}.png");
+                            File.WriteAllBytes(outputFile, imageBinary);
+                        }
+
+                        templateIndex += pages.Count;
                     }
                 }
             }

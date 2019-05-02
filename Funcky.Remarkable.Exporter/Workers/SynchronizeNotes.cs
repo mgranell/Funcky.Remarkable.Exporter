@@ -13,11 +13,11 @@ namespace Funcky.Remarkable.Exporter.Workers
 
     using NLog;
 
-    public static class SynchronizeNotes
+    public class SynchronizeNotes
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
         
-        public static async Task Execute()
+        public async Task Execute()
         {
             Logger.Info("Start Synchronization");
 

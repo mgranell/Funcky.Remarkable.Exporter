@@ -27,12 +27,15 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
         private readonly List<string> templates;
 
+        private readonly int startingPage;
+
         private string TemplateRoot => ConfigurationManager.AppSettings["TemplateRoot"];
 
-        public LinesDrawer(List<Page> pages, List<string> templates)
+        public LinesDrawer(List<Page> pages, List<string> templates, int startingPage)
         {
             this.pages = pages;
             this.templates = templates;
+            this.startingPage = startingPage;
         }
 
         public List<byte[]> Draw()
@@ -41,7 +44,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
             var images = new List<byte[]>();
 
-            var currentPage = 0;
+            var currentPage = this.startingPage;
             foreach (var page in this.pages)
             {
                 var template = string.Empty;
@@ -129,13 +132,13 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
             switch (segment.Stroke?.PenColor)
             {
-                case 0:
+                case PenColors.Black:
                     color = new SKColor(0, 0, 0);
                     break;
-                case 1:
+                case PenColors.Grey:
                     color = new SKColor(69, 69, 69);
                     break;
-                case 2:
+                case PenColors.White:
                     color = new SKColor(255, 255, 255);
                     break;
             }
@@ -146,27 +149,27 @@ namespace Funcky.Remarkable.Exporter.Drawer
             // Manage the "simple" pen type
             switch (segment.Stroke?.PenType)
             {
-                case 2:
-                case 4:
+                case PenTypes.PenBallpoint:
+                case PenTypes.PenFineLiner:
                     width = 32 * width * width - 116 * width + 107;
                     break;
-                case 3:
+                case PenTypes.PenMarker:
                     width = 64 * width - 112;
                     opacity = 0.9f;
                     break;
-                case 5:
+                case PenTypes.Highlighter:
                     width = 30;
                     opacity = 0.2f;
                     break;
-                case 6:
+                case PenTypes.Eraser:
                     width = 1280 * width * width - 4800 * width + 4510;
                     color = new SKColor(255, 255, 255);
                     break;
-                case 7:
+                case PenTypes.PencilSharp:
                     width = 16 * width - 27;
                     opacity = 0.9f;
                     break;
-                case 8:
+                case PenTypes.EraseArea:
                     // Empty the canvas
                     return null;
             }
@@ -174,10 +177,10 @@ namespace Funcky.Remarkable.Exporter.Drawer
             // Manage the pressure / tilt sensitive pens
             switch (segment.Stroke?.PenType)
             {
-                    case 0:
+                    case PenTypes.Brush:
                         width = (5 * segment.Tilt) * (6 * width - 10) * (1 + 2 * segment.Pressure * segment.Pressure * segment.Pressure);
                         break;
-                    case 1:
+                    case PenTypes.PencilTilt:
                         width = (10 * segment.Tilt - 2) * (8 * width - 14);
                         opacity = (segment.Pressure - 0.2f) * (segment.Pressure - 0.2f);
                         break;

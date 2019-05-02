@@ -18,11 +18,11 @@ namespace Funcky.Remarkable.Exporter.Workers
 
     using NLog;
 
-    public static class SaveToEvernote
+    public class SaveToEvernote
     {
         private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
 
-        public static void Execute()
+        public void Execute()
         {
             Logger.Info("Start Exporting to Evernote");
 

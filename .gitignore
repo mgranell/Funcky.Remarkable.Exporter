@@ -340,3 +340,4 @@ ASALocalRun/
 /PrismPhoto.Gallery.Web/Media/**/*
 
 **/.tscache/
+/local

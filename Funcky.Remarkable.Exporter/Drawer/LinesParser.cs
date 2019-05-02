@@ -63,8 +63,8 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
                         var stroke = new Stroke();
 
-                        stroke.PenType = this.GetInteger(workingData);
-                        stroke.PenColor = this.GetInteger(workingData);
+                        stroke.PenType = (PenTypes)this.GetInteger(workingData);
+                        stroke.PenColor = (PenColors)this.GetInteger(workingData);
                         stroke.Padding = this.GetInteger(workingData);
                         stroke.PenWidth = this.GetFloat(workingData);
 
