@@ -13,23 +13,40 @@ namespace Funcky.Remarkable.Exporter
 
     using Funcky.Remarkable.Exporter.Workers;
 
+    using Funky.Remarkable.Exporter.OneNote;
+
     using Microsoft.Extensions.Configuration;
 
     using NLog;
 
     internal static class Program
     {
-        public static async Task Main()
+        private static readonly ILogger Logger = LogManager.GetCurrentClassLogger();
+
+        public static async Task<int> Main()
         {
-            await SynchronizeNotes.Execute();
+            try
+            {
+                await SynchronizeNotes.Execute();
 
-            ExtractNotes.Execute();
+                ExtractNotes.Execute();
 
-            DrawNotes.Execute(false);
+                DrawNotes.Execute(false);
 
-            SaveToEvernote.Execute();
+                //SaveToEvernote.Execute();
+                await SaveToOneNote.Execute();
 
-            LogManager.Shutdown();
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                return 1;
+            }
+            finally
+            {
+                LogManager.Shutdown();
+            }
         }
     }
 }

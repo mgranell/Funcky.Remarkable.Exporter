@@ -50,7 +50,8 @@ namespace Funcky.Remarkable.Exporter.Workers
                                                 .Select(f => f.FullName)
                                                 .ToArray(),
                                         TemplateFile = d.First().Directory.FullName + ".pagedata",
-                                        RenderDir = d.First().Directory.FullName
+                                        RenderDir = d.First().Directory.FullName,
+                                        PagesToFileName = (Func<List<Page>, string, string[]>)UseFileNameAsPageName
                                     };
 
 
@@ -59,7 +60,8 @@ namespace Funcky.Remarkable.Exporter.Workers
                                     {
                                         PageSources = new[] { file.FullName },
                                         TemplateFile = file.FullName.Replace(".lines", ".pagedata"),
-                                        RenderDir = file.Directory.FullName
+                                        RenderDir = file.Directory.FullName,
+                                        PagesToFileName = (Func<List<Page>, string, string[]>)UsePageIndexAsFileName
                                     };
 
                 foreach (var source in v2.Concat(v3))
@@ -89,10 +91,12 @@ namespace Funcky.Remarkable.Exporter.Workers
                         var drawer = new LinesDrawer(pages, templates, pageOffset);
                         var images = drawer.Draw();
 
+                        var fileNames = source.PagesToFileName(pages, file);
+
                         for (var i = 0; i < images.Count; i++)
                         {
-                            var imageBinary = images[i];
-                            var outputFile = Path.Combine(source.RenderDir + ".png", $"{pageOffset + i:000}.png");
+                            var imageBinary = images[i];                            
+                            var outputFile = Path.Combine(source.RenderDir + ".png", fileNames[i] + ".png");
                             File.WriteAllBytes(outputFile, imageBinary);
                         }
 
@@ -103,7 +107,7 @@ namespace Funcky.Remarkable.Exporter.Workers
                         {
                             var inkML = inkMLPages[i];
 
-                            var xmlFile = Path.Combine(source.RenderDir + ".inkml", $"{pageOffset + i:000}.xml");
+                            var xmlFile = Path.Combine(source.RenderDir + ".inkml", fileNames[i] + ".xml");
                             using (var fs = File.Create(xmlFile))
                             {
                                 inkML.Save(fs);
@@ -116,6 +120,21 @@ namespace Funcky.Remarkable.Exporter.Workers
             }
 
             Logger.Info("End Exporting to PNG");
+        }
+
+        private static string[] UsePageIndexAsFileName(List<Page> pages, string filename)
+        {
+            return pages.Select((p, i) => i.ToString("000")).ToArray();
+        }
+
+        private static string[] UseFileNameAsPageName(List<Page> pages, string filename)
+        {
+            if (pages.Count > 1)
+            {
+                throw new ArgumentException("Does not support .rm files with more than one page", "pages");
+            }
+
+            return new[] { Path.GetFileNameWithoutExtension(filename) };
         }
     }
 }

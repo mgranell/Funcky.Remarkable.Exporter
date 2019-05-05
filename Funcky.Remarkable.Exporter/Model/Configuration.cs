@@ -15,19 +15,24 @@ namespace Funcky.Remarkable.Exporter.Model
     using System.Runtime.Serialization;
     using System.Threading.Tasks;
 
+    using Funky.Remarkable.Exporter.OneNote.Model;
+
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     [DataContract(Name = "configuration")]
     public class Configuration
     {
-        public static string ConfigurationPath => ConfigurationManager.AppSettings["DevicesConfiguration"];
+        public static string ConfigurationPath => ConfigurationService.AppSettings["DevicesConfiguration"];
 
         [DataMember(Name = "devices")]
         public List<DeviceRegistration> Devices { get; set; }
         
         [DataMember(Name = "smtp")]
         public SmtpConfiguration Smtp { get; set; } 
+
+        [DataMember(Name = "onenote")]
+        public OneNoteConfiguration OneNote { get; set; }
 
         public static void CreateEmptyConfiguration()
         {

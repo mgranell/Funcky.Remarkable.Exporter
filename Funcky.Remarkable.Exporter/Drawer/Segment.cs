@@ -20,5 +20,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
         public float Tilt { get; set; }
 
         public float VerticalPosition { get; set; }
+
+        public float Width { get; set; }
     }
 }

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+   <PropertyGroup>
+      <TargetFramework>netstandard2.0</TargetFramework>
+      <PackageId>OneNote.Net</PackageId>
+      <Authors>Ivan Gavryliuk</Authors>
+      <Product>OneNote .NET SDK</Product>
+      <PackageProjectUrl>https://github.com/aloneguid/onenote-sdk-dotnet</PackageProjectUrl>
+      <RepositoryUrl>https://github.com/aloneguid/onenote-sdk-dotnet</RepositoryUrl>
+      <RepositoryType>GitHub</RepositoryType>
+      <PackageTags>OneNote</PackageTags>
+      <PackageIconUrl>http://i.isolineltd.com/nuget/onenote.png</PackageIconUrl>
+      <Description>.NET client for Microsoft OneNote</Description>
+   </PropertyGroup>
+
+   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+   </PropertyGroup>
+
+   <ItemGroup>
+      <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="4.5.1" />
+      <PackageReference Include="Refit" Version="4.6.107" />
+   </ItemGroup>
+
+</Project>

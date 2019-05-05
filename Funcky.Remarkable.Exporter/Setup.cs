@@ -14,9 +14,9 @@ namespace Funcky.Remarkable.Exporter
 
     using NLog;
 
-    public static class ConfigurationManager
+    public static class ConfigurationService
     {
-        static ConfigurationManager()
+        static ConfigurationService()
         {
             // Set up configuration sources.
             var builder = new ConfigurationBuilder().SetBasePath(Path.Combine(AppContext.BaseDirectory))

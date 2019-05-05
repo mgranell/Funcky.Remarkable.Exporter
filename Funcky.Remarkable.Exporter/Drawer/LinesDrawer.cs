@@ -29,7 +29,7 @@ namespace Funcky.Remarkable.Exporter.Drawer
 
         private readonly int startingPage;
 
-        private string TemplateRoot => ConfigurationManager.AppSettings["TemplateRoot"];
+        private string TemplateRoot => ConfigurationService.AppSettings["TemplateRoot"];
 
         public LinesDrawer(List<Page> pages, List<string> templates, int startingPage)
         {

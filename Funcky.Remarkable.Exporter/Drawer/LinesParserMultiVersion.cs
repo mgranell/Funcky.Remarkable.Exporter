@@ -47,7 +47,8 @@ namespace Funcky.Remarkable.Exporter.Drawer
                                        VerticalPosition = point.Y,
                                        Pressure = point.Pressure,
                                        Speed = (point as FilePointV3)?.Speed ?? ((FilePointV2)point).RotationToX,
-                                       Tilt = (point as FilePointV3)?.Direction ?? ((FilePointV2)point).RotationToY
+                                       Tilt = (point as FilePointV3)?.Direction ?? ((FilePointV2)point).RotationToY,
+                                       Width = (point as FilePointV3)?.Width ?? 0
                                    }).ToList();
             }
 
