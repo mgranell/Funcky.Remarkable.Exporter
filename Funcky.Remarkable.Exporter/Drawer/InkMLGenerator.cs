@@ -123,7 +123,8 @@ namespace Funcky.Remarkable.Exporter.Drawer
                         case PenTypes.PencilSharp:
                             hasPressure = false;
                             minWidth = maxWidth = 4.4444f;
-                            color = new SKColor(96, 96, 96);
+                            //color = new SKColor(96, 96, 96);
+                            transparency = 0.75f;
                             break;
 
                         case PenTypes.PencilTilt:
