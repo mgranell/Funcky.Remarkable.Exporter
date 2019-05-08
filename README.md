@@ -58,6 +58,8 @@ Yes ... hardest part ... all the notes use a proprietary format, the .lines file
 Thanks to some articles on the internet (see the references below), I was able to read it and to draw it on a PNG.
 Each page is drawn in a single PNG and they are stored in a "png" subdirectory in the "content" directory.
 
+This step also creates ".inkml" files that can be rendered with https://github.com/Microsoft/InkMLjs or uploaded to OneNote.
+
 The drawing is not perfect, see the known issues below, but is readable. It's enough for the main purpose of the project : having a backup location outside of Remarkable data centers.
 
 Fun Fact : When I knew the .lines format, I faced an issue with the drawing library : there is a lot of segment on each page and most of the libraries were very bad in performance !
@@ -69,6 +71,32 @@ I chose to send it to Evernote (Built-in Image OCR and fast search) and I did it
 The drawback is that I get a note in Evernote for every version on the Remarkable, but one more time, the main purpose of the project is only the backup.
 
 This part is a work in progress, I would like to extend it to manage external services like plugins, maybe a future version :)
+
+## Step 4B : External Services (OneNote)
+This step synchronises with my personal OneNote. 
+
+Set up a OneNote Notebook with the name of you device in your devices.json file.
+
+You will need to register an application with Microsoft, see https://docs.microsoft.com/en-us/graph/auth-register-app-v2
+
+Ensure that:
+* Select "Accounts in any organizational directory and personal Microsoft accounts" as currently the code only allows using personal notebooks (small changes required to enable Office 365)
+* Copy the Application Id (Client Id) into your devices.json onenote section
+* Check the box with the Redirect URL for MSAL, and copy the Redirect URL into your devices.json RedirectUri
+
+You should then have a section like the following in your devices.json:
+```
+"onenote": {
+    "ClientId": "10b746ce-0cd2-4de1-9da8-73ad8bd1976d",
+    "RedirectUri": "msal10b746ce-0cd2-4de1-9da8-73ad8bd1976d://auth"
+  }
+```
+
+When you run next, you will be prompted to log in to your account, and the pages should synchronise up to OneNote. You can view the pages either in the desktop client or at https://www.onenote.com.
+
+### Note
+This will delete any pages within sections that match the notebook name that are not on the reMarkable, so I suggest not editing/adding pages into the notebook that is syncrhonised.
+
 
 ## Step 5 : Enjoy and have a beer !
 My notes are safe, if anything happen to Remarkable company, I have my notes and I'm happy with that !
